@@ -5,8 +5,8 @@ on:
     branches: ["main"]
 
 env:
-    IMAGE_NAME: lyfecycle-dev
-    AZURE_WEBAPP_NAME: fiap-lyfecycle-dev
+    IMAGE_NAME: applifecycle
+    AZURE_WEBAPP_NAME: AppLifecycle
 jobs:
     build:
           runs-on: ubuntu-latest
