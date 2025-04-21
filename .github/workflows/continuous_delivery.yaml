@@ -6,7 +6,8 @@ on:
 
 env:
     IMAGE_NAME: applifecycle
-    AZURE_WEBAPP_NAME: AppLifecycle
+    AZURE_WEBAPP_NAME_STG: AppLifecycle-stg
+    AZURE_WEBAPP_NAME_PRD: AppLifecycle
 jobs:
     build:
           runs-on: ubuntu-latest
@@ -30,14 +31,27 @@ jobs:
                 with:
                   push: true
                   tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-    deploy:
+    deploy-stg:
         runs-on: ubuntu-latest
         needs: build
+        environment: stg
         steps:
           - name: Deploy to Azure Web App
-            id: deploy-to-webapp
+            id: deploy-to-webapp-stg
             uses: azure/webapps-deploy@v2
             with:
-              app-name: ${{ env.AZURE_WEBAPP_NAME }}
-              publish-profile: ${{ secrets.AZURE_PROFILE }}
+              app-name: ${{ env.AZURE_WEBAPP_NAME_STG }}
+              publish-profile: ${{ secrets.AZURE_PROFILE_STG }}
+              images: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest'
+    deploy-prs:
+        runs-on: ubuntu-latest
+        needs: deploy-stg
+        environment: prd
+        steps:
+          - name: Deploy to Azure Web App
+            id: deploy-to-webapp-prd
+            uses: azure/webapps-deploy@v2
+            with:
+              app-name: ${{ env.AZURE_WEBAPP_NAME_PRD }}
+              publish-profile: ${{ secrets.AZURE_PROFILE_PRD }}
               images: '${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest'
